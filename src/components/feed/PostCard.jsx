@@ -9,8 +9,7 @@ import {
   MapPin, 
   Send, 
   Radio, 
-  Sparkles,
-  Zap
+  MoreHorizontal
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 
@@ -40,7 +39,7 @@ export const PostCard = ({ post }) => {
       return;
     }
     setIsFlameButtonAnimating(true);
-    setTimeout(() => setIsFlameButtonAnimating(false), 500);
+    setTimeout(() => setIsFlameButtonAnimating(false), 450);
 
     toggleAmplifyPost(post.id);
   };
@@ -54,11 +53,11 @@ export const PostCard = ({ post }) => {
     }
 
     setIsFlameButtonAnimating(true);
-    setTimeout(() => setIsFlameButtonAnimating(false), 500);
+    setTimeout(() => setIsFlameButtonAnimating(false), 450);
 
     setTimeout(() => {
       setShowFlamePop(false);
-    }, 1050);
+    }, 900);
   };
 
   const handleShare = () => {
@@ -151,7 +150,7 @@ export const PostCard = ({ post }) => {
         {post.content}
       </div>
 
-      {/* Media Image with Double-Tap Roaring Motivation Flame */}
+      {/* Media Image with Clean, Ultra-Smooth Vector Flame Pop */}
       {post.images?.length > 0 && (
         <div 
           onDoubleClick={handleDoubleTapImage}
@@ -160,39 +159,53 @@ export const PostCard = ({ post }) => {
           <img
             src={post.images[0]}
             alt="Post ground visual"
-            className="w-full h-full object-cover max-h-[440px] transition-transform duration-300 group-hover:scale-[1.01]"
+            className="w-full h-full object-cover max-h-[440px] transition-transform duration-500 group-hover:scale-[1.01]"
           />
 
-          {/* Motivation Flame Hint Overlay */}
-          <div className="absolute bottom-2 right-2 bg-slate-950/70 border border-slate-700 backdrop-blur-md px-2.5 py-1 rounded-lg text-[10px] text-slate-200 font-semibold flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-            <Flame className="w-3 h-3 text-brand-400" />
-            <span>Double-tap to ignite 🔥</span>
-          </div>
-
-          {/* Grand Motivation Flame Pop Effect */}
+          {/* Minimalist Double-Tap Flame Shockwave Animation */}
           {showFlamePop && (
             <div 
               key={flamePopKey}
               className="absolute inset-0 flex items-center justify-center pointer-events-none z-30"
             >
-              <div className="relative flex items-center justify-center">
-                {/* Intense Fire Energy Radiance Halo */}
-                <div className="absolute -inset-10 bg-gradient-to-t from-red-600/50 via-amber-500/40 to-yellow-300/30 rounded-full blur-2xl animate-pulse"></div>
+              {/* Expanding Frosted Glass Shockwave Ring */}
+              <div className="absolute w-36 h-36 rounded-full border border-rose-400/80 bg-rose-500/10 backdrop-blur-sm animate-smooth-shockwave" />
 
-                {/* Rising Embers Sparkles */}
-                <div className="absolute -left-8 -top-6 text-xl animate-ember-1">✨</div>
-                <div className="absolute right-8 -top-12 text-2xl animate-ember-2">🔥</div>
-                <div className="absolute left-6 -top-16 text-lg animate-ember-3">⚡</div>
+              {/* Radial Light Halo */}
+              <div className="absolute w-44 h-44 rounded-full bg-gradient-to-tr from-rose-600/60 via-amber-500/40 to-yellow-400/20 blur-2xl animate-smooth-halo" />
 
-                {/* Roaring Motivation Flame Icon */}
-                <div className="relative animate-flame-burst filter drop-shadow-[0_0_35px_rgba(255,77,79,1)] drop-shadow-[0_0_70px_rgba(250,140,22,0.9)]">
-                  <div className="w-32 h-32 rounded-full bg-gradient-to-tr from-brand-700 via-red-500 to-amber-400 p-1 flex items-center justify-center shadow-2xl">
-                    <div className="w-full h-full rounded-full bg-slate-950/40 backdrop-blur-sm flex items-center justify-center">
-                      <Flame className="w-20 h-20 text-amber-300 fill-gradient-to-t from-red-600 via-amber-400 to-yellow-200 fill-amber-400" />
-                    </div>
-                  </div>
-                </div>
-
+              {/* Sculpted Flame Vector */}
+              <div className="relative animate-smooth-flame">
+                <svg 
+                  viewBox="0 0 24 24" 
+                  className="w-24 h-24 filter drop-shadow-[0_4px_24px_rgba(255,77,79,0.95)]"
+                >
+                  <defs>
+                    <linearGradient id="flameGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+                      <stop offset="0%" stopColor="#cf1322" />
+                      <stop offset="45%" stopColor="#ff4d4f" />
+                      <stop offset="80%" stopColor="#ffa940" />
+                      <stop offset="100%" stopColor="#fffb8f" />
+                    </linearGradient>
+                    <linearGradient id="innerCore" x1="0%" y1="100%" x2="0%" y2="0%">
+                      <stop offset="0%" stopColor="#ffa940" />
+                      <stop offset="100%" stopColor="#ffffff" />
+                    </linearGradient>
+                  </defs>
+                  
+                  {/* Outer Flame Silhouette */}
+                  <path 
+                    d="M12 2C9.5 5.5 8 8.5 8 11.5c0 1.2.3 2.3.9 3.2-1.3-.9-1.9-2.2-1.9-3.7 0-.5.1-1 .2-1.5C5.1 11.2 4 13.5 4 16c0 4.4 3.6 8 8 8s8-3.6 8-8c0-3.2-1.9-6.3-4.5-8.5.3 1.2.2 2.5-.5 3.5-.8-1.5-1.7-3.2-1.7-5.5 0-1.2.4-2.4 1.2-3.5C13.5 2.2 12.8 2 12 2z" 
+                    fill="url(#flameGrad)" 
+                  />
+                  
+                  {/* Inner Golden Core */}
+                  <path 
+                    d="M12 11c-1.5 2-2 3.5-2 5 0 2.2 1.8 4 4 4s4-1.8 4-4c0-1.8-1.2-3.5-2.5-4.8.2.8.1 1.6-.3 2.3-.5-1-1.2-2.1-1.2-3.5 0-.7.3-1.5.8-2.2-.6.4-1.1.9-1.5 1.5l-1.3 1.7z" 
+                    fill="url(#innerCore)" 
+                    opacity="0.95"
+                  />
+                </svg>
               </div>
             </div>
           )}
@@ -210,25 +223,25 @@ export const PostCard = ({ post }) => {
         </div>
       )}
 
-      {/* Action Bar (Flame / Ignite Movement, Comments, Share) */}
+      {/* Action Bar */}
       <div className="flex items-center justify-between px-4 py-3 border-t border-slate-800/80 mt-2 text-xs">
         
         <div className="flex items-center gap-4">
-          {/* Flame Ignite / Amplify Button */}
+          {/* Flame Ignite / Amplify Button with Smooth Spring Bounce */}
           <button
             onClick={handleIgniteToggle}
             className={`flex items-center gap-1.5 font-bold transition-all px-2.5 py-1.5 rounded-xl group select-none ${
               post.amplifiedByUser
-                ? 'bg-gradient-to-r from-red-600/20 to-amber-600/20 text-brand-400 border border-brand-500/40 shadow-sm shadow-brand-500/20'
+                ? 'bg-rose-500/15 text-brand-400 border border-brand-500/30 shadow-sm shadow-brand-500/20'
                 : 'text-slate-300 hover:text-brand-400 hover:bg-slate-800'
             }`}
             title="Ignite & Amplify Movement"
           >
-            <div className={`${isFlameButtonAnimating ? 'animate-flame-ignite' : ''}`}>
+            <div className={`${isFlameButtonAnimating ? 'animate-smooth-btn' : ''}`}>
               <Flame 
-                className={`w-5 h-5 transition-transform group-hover:scale-125 duration-200 ${
+                className={`w-5 h-5 transition-transform duration-200 group-hover:scale-110 ${
                   post.amplifiedByUser 
-                    ? 'fill-brand-500 text-brand-400 filter drop-shadow-[0_0_10px_rgba(255,77,79,0.9)] animate-pulse' 
+                    ? 'fill-brand-500 text-brand-400 filter drop-shadow-[0_0_8px_rgba(255,77,79,0.85)]' 
                     : 'text-slate-300'
                 }`} 
               />
@@ -312,7 +325,7 @@ export const PostCard = ({ post }) => {
               ))
             ) : (
               <p className="text-xs text-slate-500 italic text-center py-2">
-                No comments yet. Double-tap the image to ignite with the flame of motivation! 🔥
+                No comments yet. Double-tap the image to ignite the movement! 🔥
               </p>
             )}
           </div>
