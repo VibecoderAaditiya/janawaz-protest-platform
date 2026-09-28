@@ -3,16 +3,14 @@ import {
   X, 
   ChevronLeft, 
   ChevronRight, 
-  Heart, 
+  Flame, 
   MapPin, 
   Share2, 
   ShieldCheck, 
   Radio, 
-  Send,
-  Flame,
+  Send, 
   Sparkles
 } from 'lucide-react';
-import confetti from 'canvas-confetti';
 import { useApp } from '../../context/AppContext';
 
 export const StoryViewerModal = () => {
@@ -22,9 +20,9 @@ export const StoryViewerModal = () => {
     activeStoryIndex, 
     setActiveStoryIndex, 
     cheerStory, 
-    showToast,
-    setSelectedProtest,
-    protests
+    showToast, 
+    setSelectedProtest, 
+    protests 
   } = useApp();
 
   const [progress, setProgress] = useState(0);
@@ -101,8 +99,8 @@ export const StoryViewerModal = () => {
   const handleSendReply = (e) => {
     e.preventDefault();
     if (!commentText.trim()) return;
-    spawnEmoji('❤️');
-    showToast(`Solidarity reply sent to ${currentStory.userName}!`, 'success');
+    spawnEmoji('🔥');
+    showToast(`Solidarity reply sent to ${currentStory.userName}! 🔥`, 'success');
     setCommentText('');
   };
 
@@ -196,7 +194,7 @@ export const StoryViewerModal = () => {
           {/* User Profile Info & Close Button */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="p-0.5 rounded-full bg-gradient-to-tr from-rose-500 to-amber-500">
+              <div className="p-0.5 rounded-full bg-gradient-to-tr from-brand-600 to-amber-500">
                 <img
                   src={currentStory.userAvatar}
                   alt={currentStory.userName}
@@ -241,7 +239,7 @@ export const StoryViewerModal = () => {
           <div className="w-2/3 h-full cursor-pointer" onClick={handleNext} />
         </div>
 
-        {/* Bottom Actions & Instagram Quick Emoji Bar */}
+        {/* Bottom Actions & Motivation Emojis Bar */}
         <div className="relative z-10 p-4 space-y-3">
           
           {/* Linked Movement Button */}
@@ -252,7 +250,7 @@ export const StoryViewerModal = () => {
             >
               <div className="flex items-center gap-2 text-brand-300 font-semibold truncate">
                 <Radio className="w-4 h-4 text-brand-400 shrink-0" />
-                <span className="truncate">View Associated Protest Movement</span>
+                <span className="truncate">View Associated Movement</span>
               </div>
               <ChevronRight className="w-4 h-4 text-slate-400 shrink-0" />
             </button>
@@ -263,9 +261,9 @@ export const StoryViewerModal = () => {
             {currentStory.caption}
           </div>
 
-          {/* Quick Instagram Story Emoji Reactions Row */}
-          <div className="flex items-center justify-between px-2 bg-black/40 backdrop-blur-md py-1.5 rounded-full border border-white/10">
-            {['🔥', '✊', '❤️', '📢', '👏', '🚩'].map((emoji, i) => (
+          {/* Motivation Reaction Emojis Row (Fire, Fist, Megaphone, Flag) */}
+          <div className="flex items-center justify-between px-3 bg-black/40 backdrop-blur-md py-1.5 rounded-full border border-white/10">
+            {['🔥', '✊', '📢', '⚡', '🚩', '🙌'].map((emoji, i) => (
               <button
                 key={i}
                 type="button"
@@ -282,7 +280,7 @@ export const StoryViewerModal = () => {
             <form onSubmit={handleSendReply} className="flex-1 flex items-center bg-white/15 backdrop-blur-md border border-white/20 rounded-full px-3.5 py-2 focus-within:border-brand-400">
               <input
                 type="text"
-                placeholder="Send reply to story..."
+                placeholder="Send ground solidarity message..."
                 value={commentText}
                 onChange={(e) => setCommentText(e.target.value)}
                 className="w-full bg-transparent text-xs text-white placeholder:text-slate-300 focus:outline-none"
@@ -293,10 +291,10 @@ export const StoryViewerModal = () => {
             </form>
 
             <button
-              onClick={() => spawnEmoji('❤️')}
-              className="flex items-center gap-1.5 bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs px-3.5 py-2 rounded-full shadow-lg shadow-rose-600/40 active:scale-90 transition-all"
+              onClick={() => spawnEmoji('🔥')}
+              className="flex items-center gap-1.5 bg-gradient-to-r from-brand-600 to-amber-600 hover:from-brand-500 hover:to-amber-500 text-white font-bold text-xs px-3.5 py-2 rounded-full shadow-lg shadow-brand-600/40 active:scale-90 transition-all"
             >
-              <Heart className="w-4 h-4 fill-white" />
+              <Flame className="w-4 h-4 fill-white" />
               <span>{currentStory.cheersCount}</span>
             </button>
 

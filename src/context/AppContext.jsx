@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import confetti from 'canvas-confetti';
 import { 
   CITIES, 
   CATEGORIES, 
@@ -122,7 +121,7 @@ export const AppProvider = ({ children }) => {
       role: userData.role || 'Activist Citizen',
       verified: userData.verified ?? true
     }));
-    showToast(`Welcome back, ${userData.name || 'Activist'}!`, 'success');
+    showToast(`Solidarity! Logged in as ${userData.name || 'Citizen'} 🔥`, 'success');
   };
 
   const signupUser = (formData) => {
@@ -141,8 +140,7 @@ export const AppProvider = ({ children }) => {
       savedFlashcards: []
     };
     setCurrentUser(newUser);
-    showToast(`Account created! Welcome to JanAwaz, ${formData.name}`, 'success');
-    confetti({ particleCount: 60, spread: 60, origin: { y: 0.7 } });
+    showToast(`Movement account registered for ${formData.name} 🔥`, 'success');
   };
 
   const continueAsGuest = () => {
@@ -152,7 +150,7 @@ export const AppProvider = ({ children }) => {
 
   const logoutUser = () => {
     setIsGuest(true);
-    showToast('Logged out. You are now in Guest Mode.', 'info');
+    showToast('Logged out. You are now browsing in Guest Mode.', 'info');
   };
 
   // Actions
@@ -167,12 +165,7 @@ export const AppProvider = ({ children }) => {
       if (pr.id === protestId) {
         const willAttend = !pr.attendingUser;
         if (willAttend) {
-          confetti({
-            particleCount: 50,
-            spread: 60,
-            origin: { y: 0.8 }
-          });
-          showToast(`Solidarity! You're attending "${pr.title}"`, 'success');
+          showToast(`Solidarity registered! You are joining "${pr.title}" 🔥`, 'success');
         } else {
           showToast(`RSVP cancelled for "${pr.title}"`, 'info');
         }
@@ -233,8 +226,7 @@ export const AppProvider = ({ children }) => {
     };
 
     setProtests([newProtest, ...protests]);
-    showToast('Movement published successfully to JanAwaz map and calendar!', 'success');
-    confetti({ particleCount: 70, spread: 70, origin: { y: 0.7 } });
+    showToast('Movement published to JanAwaz map and calendar! 🔥', 'success');
   };
 
   const addStory = (storyData) => {
@@ -255,14 +247,14 @@ export const AppProvider = ({ children }) => {
       cityId: storyData.cityId || 'delhi',
       timestamp: 'Just now',
       mediaUrl: storyData.mediaUrl,
-      mediaType: storyData.mediaType || 'image',
+      mediaType: 'image',
       caption: storyData.caption,
       protestId: storyData.protestId || null,
       cheersCount: 0,
       isLive: storyData.isLive ?? true
     };
     setStories([newStory, ...stories]);
-    showToast('Ground story uploaded to live 24h stream!', 'success');
+    showToast('Ground story uploaded to live 24h stream! 🔥', 'success');
   };
 
   const cheerStory = (storyId) => {
@@ -306,13 +298,13 @@ export const AppProvider = ({ children }) => {
       tags: postData.tags || ['#JanAwaz', '#CivicAction']
     };
     setPosts([newPost, ...posts]);
-    showToast('Post amplified across movement feeds!', 'success');
+    showToast('Dispatch amplified across movement feeds! 🔥', 'success');
   };
 
   const toggleAmplifyPost = (postId) => {
     if (isGuest) {
       setIsAuthModalOpen(true);
-      showToast('Please sign in to amplify dispatches', 'info');
+      showToast('Please sign in to ignite dispatches', 'info');
       return;
     }
 
@@ -369,7 +361,7 @@ export const AppProvider = ({ children }) => {
       if (comm.id === communityId) {
         const isJoined = !comm.isJoined;
         if (isJoined) {
-          showToast(`Joined ${comm.name}!`, 'success');
+          showToast(`Joined ${comm.name}! 🔥`, 'success');
         } else {
           showToast(`Left ${comm.name}`, 'info');
         }

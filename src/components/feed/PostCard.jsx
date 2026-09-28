@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { 
   Flame, 
-  Heart, 
   MessageSquare, 
   Share2, 
   Bookmark, 
@@ -11,9 +10,8 @@ import {
   Send, 
   Radio, 
   Sparkles,
-  MoreHorizontal
+  Zap
 } from 'lucide-react';
-import confetti from 'canvas-confetti';
 import { useApp } from '../../context/AppContext';
 
 export const PostCard = ({ post }) => {
@@ -29,57 +27,43 @@ export const PostCard = ({ post }) => {
 
   const [showComments, setShowComments] = useState(false);
   const [commentInput, setCommentInput] = useState('');
-  const [showHeartPop, setShowHeartPop] = useState(false);
-  const [heartPopKey, setHeartPopKey] = useState(0);
+  const [showFlamePop, setShowFlamePop] = useState(false);
+  const [flamePopKey, setFlamePopKey] = useState(0);
   const [isBookmarked, setIsBookmarked] = useState(false);
-  const [isLikedButtonAnimating, setIsLikedButtonAnimating] = useState(false);
+  const [isFlameButtonAnimating, setIsFlameButtonAnimating] = useState(false);
 
-  const handleLikeToggle = (e) => {
+  const handleIgniteToggle = (e) => {
     e?.stopPropagation();
     if (isGuest) {
       setIsAuthModalOpen(true);
-      showToast('Please sign in or create an account to amplify posts', 'info');
+      showToast('Please sign in or create an account to ignite movements', 'info');
       return;
     }
-    setIsLikedButtonAnimating(true);
-    setTimeout(() => setIsLikedButtonAnimating(false), 500);
+    setIsFlameButtonAnimating(true);
+    setTimeout(() => setIsFlameButtonAnimating(false), 500);
 
-    if (!post.amplifiedByUser) {
-      confetti({
-        particleCount: 25,
-        spread: 45,
-        origin: { y: 0.8 }
-      });
-    }
     toggleAmplifyPost(post.id);
   };
 
   const handleDoubleTapImage = (e) => {
-    setHeartPopKey(prev => prev + 1);
-    setShowHeartPop(true);
+    setFlamePopKey(prev => prev + 1);
+    setShowFlamePop(true);
 
     if (!post.amplifiedByUser && !isGuest) {
       toggleAmplifyPost(post.id);
     }
 
-    setIsLikedButtonAnimating(true);
-    setTimeout(() => setIsLikedButtonAnimating(false), 500);
-
-    confetti({
-      particleCount: 35,
-      spread: 60,
-      origin: { y: 0.65 },
-      colors: ['#ff4d4f', '#ff7875', '#ffffff', '#fa8c16']
-    });
+    setIsFlameButtonAnimating(true);
+    setTimeout(() => setIsFlameButtonAnimating(false), 500);
 
     setTimeout(() => {
-      setShowHeartPop(false);
-    }, 950);
+      setShowFlamePop(false);
+    }, 1050);
   };
 
   const handleShare = () => {
     navigator.clipboard?.writeText(window.location.href);
-    showToast('Post quote link copied for sharing!', 'info');
+    showToast('Movement dispatch copied for broadcasting!', 'info');
   };
 
   const handleCommentSubmit = (e) => {
@@ -102,7 +86,7 @@ export const PostCard = ({ post }) => {
   };
 
   return (
-    <div className="bg-slate-900/90 hover:bg-slate-900 border border-slate-800/90 rounded-3xl overflow-hidden transition-all shadow-lg hover:shadow-2xl hover:shadow-brand-500/5">
+    <div className="bg-slate-900/90 hover:bg-slate-900 border border-slate-800/90 rounded-3xl overflow-hidden transition-all shadow-lg hover:shadow-2xl hover:shadow-brand-500/10">
       
       {/* Post Header */}
       <div className="flex items-center justify-between p-3.5 sm:p-4 pb-2.5">
@@ -167,7 +151,7 @@ export const PostCard = ({ post }) => {
         {post.content}
       </div>
 
-      {/* Media Image with Instagram-grade Double-Tap Heart Burst */}
+      {/* Media Image with Double-Tap Roaring Motivation Flame */}
       {post.images?.length > 0 && (
         <div 
           onDoubleClick={handleDoubleTapImage}
@@ -179,30 +163,36 @@ export const PostCard = ({ post }) => {
             className="w-full h-full object-cover max-h-[440px] transition-transform duration-300 group-hover:scale-[1.01]"
           />
 
-          {/* Hint Overlay (faint) */}
-          <div className="absolute bottom-2 right-2 bg-black/50 backdrop-blur-md px-2 py-0.5 rounded-md text-[9px] text-slate-300 font-medium opacity-0 group-hover:opacity-100 transition-opacity">
-            Double-tap to like ❤️
+          {/* Motivation Flame Hint Overlay */}
+          <div className="absolute bottom-2 right-2 bg-slate-950/70 border border-slate-700 backdrop-blur-md px-2.5 py-1 rounded-lg text-[10px] text-slate-200 font-semibold flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            <Flame className="w-3 h-3 text-brand-400" />
+            <span>Double-tap to ignite 🔥</span>
           </div>
 
-          {/* Instagram Grand Heart Pop Effect */}
-          {showHeartPop && (
+          {/* Grand Motivation Flame Pop Effect */}
+          {showFlamePop && (
             <div 
-              key={heartPopKey}
+              key={flamePopKey}
               className="absolute inset-0 flex items-center justify-center pointer-events-none z-30"
             >
-              <div className="relative animate-insta-heart">
-                {/* Outer Glow Halo */}
-                <div className="absolute -inset-4 bg-rose-500/40 rounded-full blur-xl"></div>
-                
-                {/* Center Solid Heart with Shadow */}
-                <div className="relative w-28 h-28 flex items-center justify-center filter drop-shadow-[0_10px_25px_rgba(239,68,68,0.8)]">
-                  <svg 
-                    viewBox="0 0 24 24" 
-                    className="w-full h-full text-rose-500 fill-rose-500 stroke-white stroke-[1.2]"
-                  >
-                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                  </svg>
+              <div className="relative flex items-center justify-center">
+                {/* Intense Fire Energy Radiance Halo */}
+                <div className="absolute -inset-10 bg-gradient-to-t from-red-600/50 via-amber-500/40 to-yellow-300/30 rounded-full blur-2xl animate-pulse"></div>
+
+                {/* Rising Embers Sparkles */}
+                <div className="absolute -left-8 -top-6 text-xl animate-ember-1">✨</div>
+                <div className="absolute right-8 -top-12 text-2xl animate-ember-2">🔥</div>
+                <div className="absolute left-6 -top-16 text-lg animate-ember-3">⚡</div>
+
+                {/* Roaring Motivation Flame Icon */}
+                <div className="relative animate-flame-burst filter drop-shadow-[0_0_35px_rgba(255,77,79,1)] drop-shadow-[0_0_70px_rgba(250,140,22,0.9)]">
+                  <div className="w-32 h-32 rounded-full bg-gradient-to-tr from-brand-700 via-red-500 to-amber-400 p-1 flex items-center justify-center shadow-2xl">
+                    <div className="w-full h-full rounded-full bg-slate-950/40 backdrop-blur-sm flex items-center justify-center">
+                      <Flame className="w-20 h-20 text-amber-300 fill-gradient-to-t from-red-600 via-amber-400 to-yellow-200 fill-amber-400" />
+                    </div>
+                  </div>
                 </div>
+
               </div>
             </div>
           )}
@@ -220,29 +210,31 @@ export const PostCard = ({ post }) => {
         </div>
       )}
 
-      {/* Instagram-style Action Bar */}
+      {/* Action Bar (Flame / Ignite Movement, Comments, Share) */}
       <div className="flex items-center justify-between px-4 py-3 border-t border-slate-800/80 mt-2 text-xs">
         
         <div className="flex items-center gap-4">
-          {/* Like Heart Button with Spring Bounce */}
+          {/* Flame Ignite / Amplify Button */}
           <button
-            onClick={handleLikeToggle}
-            className={`flex items-center gap-1.5 font-bold transition-all px-2 py-1 rounded-xl group select-none ${
+            onClick={handleIgniteToggle}
+            className={`flex items-center gap-1.5 font-bold transition-all px-2.5 py-1.5 rounded-xl group select-none ${
               post.amplifiedByUser
-                ? 'text-rose-500'
-                : 'text-slate-300 hover:text-rose-400'
+                ? 'bg-gradient-to-r from-red-600/20 to-amber-600/20 text-brand-400 border border-brand-500/40 shadow-sm shadow-brand-500/20'
+                : 'text-slate-300 hover:text-brand-400 hover:bg-slate-800'
             }`}
+            title="Ignite & Amplify Movement"
           >
-            <div className={`${isLikedButtonAnimating ? 'animate-insta-bounce' : ''}`}>
-              <Heart 
-                className={`w-6 h-6 transition-transform group-hover:scale-110 duration-200 ${
+            <div className={`${isFlameButtonAnimating ? 'animate-flame-ignite' : ''}`}>
+              <Flame 
+                className={`w-5 h-5 transition-transform group-hover:scale-125 duration-200 ${
                   post.amplifiedByUser 
-                    ? 'fill-rose-500 text-rose-500 filter drop-shadow-[0_0_8px_rgba(244,63,94,0.6)]' 
+                    ? 'fill-brand-500 text-brand-400 filter drop-shadow-[0_0_10px_rgba(255,77,79,0.9)] animate-pulse' 
                     : 'text-slate-300'
                 }`} 
               />
             </div>
             <span className="font-extrabold text-sm">{post.amplifies.toLocaleString()}</span>
+            <span className="hidden sm:inline font-semibold text-xs text-slate-400">Ignited</span>
           </button>
 
           {/* Comment toggle */}
@@ -267,7 +259,7 @@ export const PostCard = ({ post }) => {
         <button
           onClick={() => {
             setIsBookmarked(!isBookmarked);
-            showToast(isBookmarked ? 'Removed from saved' : 'Saved to activist bookmarks', 'info');
+            showToast(isBookmarked ? 'Removed from saved' : 'Saved to movement bookmarks', 'info');
           }}
           className={`p-1.5 rounded-xl transition-colors ${
             isBookmarked ? 'text-brand-400' : 'text-slate-400 hover:text-white'
@@ -286,7 +278,7 @@ export const PostCard = ({ post }) => {
           <form onSubmit={handleCommentSubmit} className="flex items-center gap-2">
             <input
               type="text"
-              placeholder="Add ground feedback or solidarity note..."
+              placeholder="Add ground solidarity or feedback..."
               value={commentInput}
               onChange={(e) => setCommentInput(e.target.value)}
               className="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-xs text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-brand-500"
@@ -320,7 +312,7 @@ export const PostCard = ({ post }) => {
               ))
             ) : (
               <p className="text-xs text-slate-500 italic text-center py-2">
-                No comments yet. Double tap image or write a comment!
+                No comments yet. Double-tap the image to ignite with the flame of motivation! 🔥
               </p>
             )}
           </div>
