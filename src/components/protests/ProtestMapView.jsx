@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap, Circle } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap, Circle, LayersControl } from 'react-leaflet';
 import L from 'leaflet';
 import { 
   Flame, 
@@ -10,7 +10,8 @@ import {
   Radio, 
   AlertTriangle, 
   ExternalLink,
-  Info
+  Layers,
+  Crosshair
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { CITIES } from '../../data/mockData';
@@ -29,7 +30,6 @@ const ChangeMapView = ({ center, zoom }) => {
 // Custom Marker Generator
 const createCustomMarker = (protest, isSelected) => {
   const isLive = protest.status === 'live';
-  const color = isLive ? '#ef4444' : '#f59e0b';
   const pulseClass = isLive ? 'protest-pulse-live' : '';
 
   const html = `
@@ -38,15 +38,15 @@ const createCustomMarker = (protest, isSelected) => {
         background: ${isLive ? 'linear-gradient(135deg, #ef4444, #b91c1c)' : 'linear-gradient(135deg, #f59e0b, #d97706)'};
         color: white;
         border-radius: 9999px;
-        width: ${isSelected ? '38px' : '30px'};
-        height: ${isSelected ? '38px' : '30px'};
+        width: ${isSelected ? '38px' : '32px'};
+        height: ${isSelected ? '38px' : '32px'};
         display: flex;
         align-items: center;
         justify-content: center;
-        border: 2px solid #ffffff;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        border: 2.5px solid #ffffff;
+        box-shadow: 0 4px 14px rgba(0,0,0,0.6);
         cursor: pointer;
-        transition: transform 0.2s;
+        transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
       ">
         <svg xmlns="http://www.w3.org/2000/svg" width="${isSelected ? '18' : '15'}" height="${isSelected ? '18' : '15'}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
@@ -58,8 +58,8 @@ const createCustomMarker = (protest, isSelected) => {
   return L.divIcon({
     html,
     className: 'custom-protest-pin',
-    iconSize: [34, 34],
-    iconAnchor: [17, 17],
+    iconSize: [36, 36],
+    iconAnchor: [18, 18],
     popupAnchor: [0, -18]
   });
 };
@@ -71,49 +71,97 @@ export const ProtestMapView = () => {
     setSelectedCity,
     selectedProtest, 
     setSelectedProtest,
-    toggleRSVP 
+    showToast
   } = useApp();
+
+  const [mapStyle, setMapStyle] = useState('osm'); // 'osm' | 'satellite' | 'topo'
 
   const cityObj = CITIES.find(c => c.id === selectedCity) || CITIES[0];
   const centerPos = [cityObj.lat, cityObj.lng];
   const mapZoom = cityObj.zoom;
 
+  const handleLocateMe = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          showToast('Located your current coordinates in India!', 'success');
+        },
+        () => {
+          showToast('Location permission denied or unavailable. Centered on ' + cityObj.name, 'info');
+        }
+      );
+    }
+  };
+
   return (
-    <div className="relative w-full h-[480px] lg:h-[620px] rounded-2xl overflow-hidden border border-slate-800 shadow-xl bg-slate-950">
+    <div className="relative w-full h-[480px] lg:h-[620px] rounded-3xl overflow-hidden border border-slate-800 shadow-2xl bg-slate-950">
       
       {/* Map Overlay Badge */}
-      <div className="absolute top-3 left-3 z-[1000] bg-slate-900/90 backdrop-blur-md border border-slate-700/80 rounded-xl px-3 py-1.5 flex items-center gap-2 shadow-lg">
+      <div className="absolute top-3 left-3 z-[1000] bg-slate-900/95 backdrop-blur-md border border-slate-700/80 rounded-2xl px-3.5 py-2 flex items-center gap-2.5 shadow-xl">
         <div className="flex items-center gap-1.5">
-          <span className="flex h-2 w-2 relative">
+          <span className="flex h-2.5 w-2.5 relative">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
           </span>
-          <span className="text-xs font-bold text-slate-100 uppercase tracking-wide">
-            {cityObj.name} Live Map
+          <span className="text-xs font-extrabold text-slate-100 uppercase tracking-wider">
+            {cityObj.name} Live Radar
           </span>
         </div>
-        <span className="text-[10px] text-slate-400 border-l border-slate-700 pl-2">
-          {filteredProtests.length} Movements Active
+        <span className="text-[11px] text-brand-400 font-bold border-l border-slate-700 pl-2">
+          {filteredProtests.length} Movements
         </span>
       </div>
 
+      {/* Map Layer Switcher & Locate Controls */}
+      <div className="absolute top-3 right-3 z-[1000] flex items-center gap-1.5">
+        
+        {/* Style Switcher */}
+        <div className="bg-slate-900/95 backdrop-blur-md border border-slate-700/80 rounded-xl p-1 flex items-center gap-1 shadow-lg text-[10px] font-bold text-slate-300">
+          <button
+            onClick={() => setMapStyle('osm')}
+            className={`px-2.5 py-1 rounded-lg transition-all ${
+              mapStyle === 'osm' ? 'bg-brand-600 text-white shadow-sm' : 'hover:text-white'
+            }`}
+          >
+            Street (Free OSM)
+          </button>
+          <button
+            onClick={() => setMapStyle('satellite')}
+            className={`px-2.5 py-1 rounded-lg transition-all ${
+              mapStyle === 'satellite' ? 'bg-brand-600 text-white shadow-sm' : 'hover:text-white'
+            }`}
+          >
+            Satellite
+          </button>
+        </div>
+
+        {/* Locate GPS button */}
+        <button
+          onClick={handleLocateMe}
+          className="w-8 h-8 rounded-xl bg-slate-900/95 hover:bg-slate-800 border border-slate-700/80 text-slate-200 flex items-center justify-center shadow-lg transition-all"
+          title="Locate Me"
+        >
+          <Crosshair className="w-4 h-4 text-brand-400" />
+        </button>
+      </div>
+
       {/* Map Legend */}
-      <div className="absolute bottom-3 left-3 z-[1000] bg-slate-900/90 backdrop-blur-md border border-slate-700/80 rounded-xl p-2.5 flex items-center gap-3 text-[11px] shadow-lg">
+      <div className="absolute bottom-3 left-3 z-[1000] bg-slate-900/95 backdrop-blur-md border border-slate-700/80 rounded-2xl p-2.5 px-3.5 flex items-center gap-3.5 text-[11px] shadow-xl">
         <div className="flex items-center gap-1.5">
           <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></span>
-          <span className="text-slate-200 font-medium">Live Now</span>
+          <span className="text-slate-200 font-semibold">Live Assembly</span>
         </div>
         <div className="flex items-center gap-1.5">
           <span className="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
-          <span className="text-slate-200 font-medium">Scheduled</span>
+          <span className="text-slate-200 font-semibold">Scheduled Movement</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-          <span className="text-slate-200 font-medium">Peaceful / Safe</span>
+          <span className="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+          <span className="text-slate-200 font-semibold">Peaceful Zone</span>
         </div>
       </div>
 
-      {/* Leaflet Map */}
+      {/* Leaflet Map with 100% Free OpenStreetMap & Esri World Imagery (Zero API Keys) */}
       <MapContainer
         center={centerPos}
         zoom={mapZoom}
@@ -122,12 +170,22 @@ export const ProtestMapView = () => {
       >
         <ChangeMapView center={centerPos} zoom={mapZoom} />
 
-        {/* Dark CartoDB / OSM Tile layer */}
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-          url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-          maxZoom={19}
-        />
+        {/* Tile Layers without any API key restrictions */}
+        {mapStyle === 'osm' && (
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            maxZoom={19}
+          />
+        )}
+
+        {mapStyle === 'satellite' && (
+          <TileLayer
+            attribution='Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+            url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+            maxZoom={18}
+          />
+        )}
 
         {/* Protests Markers & Safety Radius */}
         {filteredProtests.map(protest => {
@@ -140,13 +198,13 @@ export const ProtestMapView = () => {
               {isLive && (
                 <Circle
                   center={[protest.lat, protest.lng]}
-                  radius={500}
+                  radius={600}
                   pathOptions={{
                     fillColor: '#ef4444',
-                    fillOpacity: 0.12,
+                    fillOpacity: 0.15,
                     color: '#ef4444',
-                    weight: 1,
-                    dashArray: '4, 4'
+                    weight: 1.5,
+                    dashArray: '5, 5'
                   }}
                 />
               )}
@@ -190,13 +248,13 @@ export const ProtestMapView = () => {
                         <strong className="text-slate-200">{protest.headcount.toLocaleString()}</strong> joined
                       </span>
                       <span className="text-emerald-400 font-semibold">
-                        {protest.safetyStatus.level === 'green' ? '✓ Verified Safe' : '⚠️ Alert'}
+                        {protest.safetyStatus.level === 'green' ? '✓ Safe Assembly' : '⚠️ Police Barricades'}
                       </span>
                     </div>
 
                     <button
                       onClick={() => setSelectedProtest(protest)}
-                      className="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold text-xs py-1.5 rounded-lg transition-colors flex items-center justify-center gap-1"
+                      className="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold text-xs py-1.5 rounded-lg transition-colors flex items-center justify-center gap-1 shadow-md"
                     >
                       <span>View Full Dossier</span>
                       <ExternalLink className="w-3 h-3" />

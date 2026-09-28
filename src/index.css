@@ -17,6 +17,7 @@ body {
   background-color: #090d16;
   color: #f1f5f9;
   overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* Custom Scrollbars */
@@ -41,20 +42,20 @@ body {
   height: 100%;
   background: #090d16 !important;
   font-family: 'Inter', sans-serif !important;
-  border-radius: 1rem;
+  border-radius: 1.25rem;
 }
 
 .leaflet-popup-content-wrapper {
-  background: #182238 !important;
+  background: #131b2e !important;
   color: #f8fafc !important;
-  border-radius: 0.75rem !important;
+  border-radius: 1rem !important;
   border: 1px solid #334155 !important;
-  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.5), 0 8px 10px -6px rgb(0 0 0 / 0.5) !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7) !important;
   padding: 0.25rem !important;
 }
 
 .leaflet-popup-tip {
-  background: #182238 !important;
+  background: #131b2e !important;
   border: 1px solid #334155 !important;
 }
 
@@ -62,6 +63,7 @@ body {
   background-color: #1e293b !important;
   color: #f8fafc !important;
   border-color: #334155 !important;
+  border-radius: 0.5rem !important;
 }
 .leaflet-control-zoom a:hover {
   background-color: #334155 !important;
@@ -71,11 +73,11 @@ body {
 @keyframes pulse-ring {
   0% {
     transform: scale(0.95);
-    opacity: 0.8;
+    opacity: 0.85;
   }
   50% {
     transform: scale(1.4);
-    opacity: 0.2;
+    opacity: 0.25;
   }
   100% {
     transform: scale(1.8);
@@ -94,12 +96,55 @@ body {
   right: -4px;
   bottom: -4px;
   border-radius: 9999px;
-  background-color: rgba(239, 68, 68, 0.4);
+  background-color: rgba(239, 68, 68, 0.5);
   animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
   z-index: -1;
 }
 
-/* Hide scrollbar for clean story slider */
+/* Instagram Double-Tap Heart Animation */
+@keyframes insta-heart-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0) rotate(-14deg);
+  }
+  15% {
+    opacity: 0.95;
+    transform: scale(1.35) rotate(-14deg);
+  }
+  30% {
+    transform: scale(0.95) rotate(-14deg);
+  }
+  45% {
+    transform: scale(1.05) rotate(-14deg);
+  }
+  80% {
+    opacity: 1;
+    transform: scale(1) rotate(-14deg) translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.8) rotate(-14deg) translateY(-35px);
+  }
+}
+
+.animate-insta-heart {
+  animation: insta-heart-pop 0.95s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+/* Instagram Like Button Spring Bounce */
+@keyframes insta-bounce {
+  0% { transform: scale(1); }
+  25% { transform: scale(1.35); }
+  50% { transform: scale(0.85); }
+  75% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+.animate-insta-bounce {
+  animation: insta-bounce 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Hide scrollbar */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }

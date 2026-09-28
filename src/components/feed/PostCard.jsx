@@ -9,7 +9,7 @@ import {
   Shield, 
   MapPin, 
   Send, 
-  Radio,
+  Radio, 
   Sparkles,
   MoreHorizontal
 } from 'lucide-react';
@@ -21,7 +21,7 @@ export const PostCard = ({ post }) => {
     toggleAmplifyPost, 
     addCommentToPost, 
     showToast, 
-    setSelectedProtest,
+    setSelectedProtest, 
     protests,
     isGuest,
     setIsAuthModalOpen
@@ -30,31 +30,51 @@ export const PostCard = ({ post }) => {
   const [showComments, setShowComments] = useState(false);
   const [commentInput, setCommentInput] = useState('');
   const [showHeartPop, setShowHeartPop] = useState(false);
+  const [heartPopKey, setHeartPopKey] = useState(0);
   const [isBookmarked, setIsBookmarked] = useState(false);
+  const [isLikedButtonAnimating, setIsLikedButtonAnimating] = useState(false);
 
-  const handleAmplify = (e) => {
+  const handleLikeToggle = (e) => {
     e?.stopPropagation();
     if (isGuest) {
       setIsAuthModalOpen(true);
       showToast('Please sign in or create an account to amplify posts', 'info');
       return;
     }
+    setIsLikedButtonAnimating(true);
+    setTimeout(() => setIsLikedButtonAnimating(false), 500);
+
+    if (!post.amplifiedByUser) {
+      confetti({
+        particleCount: 25,
+        spread: 45,
+        origin: { y: 0.8 }
+      });
+    }
     toggleAmplifyPost(post.id);
   };
 
   const handleDoubleTapImage = (e) => {
+    setHeartPopKey(prev => prev + 1);
     setShowHeartPop(true);
+
     if (!post.amplifiedByUser && !isGuest) {
       toggleAmplifyPost(post.id);
     }
+
+    setIsLikedButtonAnimating(true);
+    setTimeout(() => setIsLikedButtonAnimating(false), 500);
+
     confetti({
-      particleCount: 20,
-      spread: 40,
-      origin: { y: 0.7 }
+      particleCount: 35,
+      spread: 60,
+      origin: { y: 0.65 },
+      colors: ['#ff4d4f', '#ff7875', '#ffffff', '#fa8c16']
     });
+
     setTimeout(() => {
       setShowHeartPop(false);
-    }, 900);
+    }, 950);
   };
 
   const handleShare = () => {
@@ -82,18 +102,20 @@ export const PostCard = ({ post }) => {
   };
 
   return (
-    <div className="bg-slate-900/90 hover:bg-slate-900 border border-slate-800/90 rounded-2xl overflow-hidden transition-all shadow-md">
+    <div className="bg-slate-900/90 hover:bg-slate-900 border border-slate-800/90 rounded-3xl overflow-hidden transition-all shadow-lg hover:shadow-2xl hover:shadow-brand-500/5">
       
       {/* Post Header */}
       <div className="flex items-center justify-between p-3.5 sm:p-4 pb-2.5">
         <div className="flex items-center gap-3">
-          <img
-            src={post.author.avatar}
-            alt={post.author.name}
-            className={`w-10 h-10 rounded-full object-cover border-2 ${
-              post.isAnonymous ? 'border-purple-500' : 'border-brand-500/80'
-            }`}
-          />
+          <div className="relative">
+            <img
+              src={post.author.avatar}
+              alt={post.author.name}
+              className={`w-10 h-10 rounded-full object-cover border-2 ${
+                post.isAnonymous ? 'border-purple-500' : 'border-brand-500'
+              }`}
+            />
+          </div>
           <div>
             <div className="flex items-center gap-1.5 flex-wrap">
               <span className="font-bold text-sm text-slate-100">
@@ -128,7 +150,7 @@ export const PostCard = ({ post }) => {
           </div>
         </div>
 
-        {/* Linked Protest Tag */}
+        {/* Linked Movement Tag */}
         {post.protestTag && (
           <button
             onClick={handleProtestClick}
@@ -145,23 +167,42 @@ export const PostCard = ({ post }) => {
         {post.content}
       </div>
 
-      {/* Media Image with Instagram-style Double-Tap to Like Pop */}
+      {/* Media Image with Instagram-grade Double-Tap Heart Burst */}
       {post.images?.length > 0 && (
         <div 
           onDoubleClick={handleDoubleTapImage}
-          className="relative bg-black select-none cursor-pointer overflow-hidden max-h-96"
+          className="relative bg-black select-none cursor-pointer overflow-hidden max-h-[440px] flex items-center justify-center group"
         >
           <img
             src={post.images[0]}
-            alt="Post ground image"
-            className="w-full h-full object-cover max-h-96"
+            alt="Post ground visual"
+            className="w-full h-full object-cover max-h-[440px] transition-transform duration-300 group-hover:scale-[1.01]"
           />
 
-          {/* Floating Double Tap Heart Animation */}
+          {/* Hint Overlay (faint) */}
+          <div className="absolute bottom-2 right-2 bg-black/50 backdrop-blur-md px-2 py-0.5 rounded-md text-[9px] text-slate-300 font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+            Double-tap to like ❤️
+          </div>
+
+          {/* Instagram Grand Heart Pop Effect */}
           {showHeartPop && (
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20 animate-in zoom-in-50 duration-200">
-              <div className="w-24 h-24 rounded-full bg-rose-600/90 backdrop-blur-md flex items-center justify-center shadow-2xl shadow-rose-600/50 scale-125 transition-transform">
-                <Heart className="w-14 h-14 text-white fill-white animate-bounce" />
+            <div 
+              key={heartPopKey}
+              className="absolute inset-0 flex items-center justify-center pointer-events-none z-30"
+            >
+              <div className="relative animate-insta-heart">
+                {/* Outer Glow Halo */}
+                <div className="absolute -inset-4 bg-rose-500/40 rounded-full blur-xl"></div>
+                
+                {/* Center Solid Heart with Shadow */}
+                <div className="relative w-28 h-28 flex items-center justify-center filter drop-shadow-[0_10px_25px_rgba(239,68,68,0.8)]">
+                  <svg 
+                    viewBox="0 0 24 24" 
+                    className="w-full h-full text-rose-500 fill-rose-500 stroke-white stroke-[1.2]"
+                  >
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                  </svg>
+                </div>
               </div>
             </div>
           )}
@@ -183,21 +224,25 @@ export const PostCard = ({ post }) => {
       <div className="flex items-center justify-between px-4 py-3 border-t border-slate-800/80 mt-2 text-xs">
         
         <div className="flex items-center gap-4">
-          {/* Heart / Amplify Button with Bounce Effect */}
+          {/* Like Heart Button with Spring Bounce */}
           <button
-            onClick={handleAmplify}
-            className={`flex items-center gap-1.5 font-bold transition-all px-2 py-1 rounded-xl group ${
+            onClick={handleLikeToggle}
+            className={`flex items-center gap-1.5 font-bold transition-all px-2 py-1 rounded-xl group select-none ${
               post.amplifiedByUser
-                ? 'text-rose-500 scale-105'
+                ? 'text-rose-500'
                 : 'text-slate-300 hover:text-rose-400'
             }`}
           >
-            <Heart 
-              className={`w-5 h-5 transition-transform group-hover:scale-125 duration-200 ${
-                post.amplifiedByUser ? 'fill-rose-500 text-rose-500 animate-pulse' : 'text-slate-300'
-              }`} 
-            />
-            <span className="font-extrabold">{post.amplifies}</span>
+            <div className={`${isLikedButtonAnimating ? 'animate-insta-bounce' : ''}`}>
+              <Heart 
+                className={`w-6 h-6 transition-transform group-hover:scale-110 duration-200 ${
+                  post.amplifiedByUser 
+                    ? 'fill-rose-500 text-rose-500 filter drop-shadow-[0_0_8px_rgba(244,63,94,0.6)]' 
+                    : 'text-slate-300'
+                }`} 
+              />
+            </div>
+            <span className="font-extrabold text-sm">{post.amplifies.toLocaleString()}</span>
           </button>
 
           {/* Comment toggle */}
@@ -206,7 +251,7 @@ export const PostCard = ({ post }) => {
             className="flex items-center gap-1.5 text-slate-300 hover:text-white px-2 py-1 rounded-xl transition-all group"
           >
             <MessageSquare className="w-5 h-5 group-hover:scale-110 transition-transform" />
-            <span>{post.commentsCount}</span>
+            <span className="text-sm font-semibold">{post.commentsCount}</span>
           </button>
 
           {/* Share */}
@@ -233,7 +278,7 @@ export const PostCard = ({ post }) => {
 
       </div>
 
-      {/* Expandable Comments Section */}
+      {/* Expandable Comments Drawer */}
       {showComments && (
         <div className="p-4 pt-2 border-t border-slate-800/80 bg-slate-950/40 space-y-3 animate-in fade-in slide-in-from-top-2">
           
