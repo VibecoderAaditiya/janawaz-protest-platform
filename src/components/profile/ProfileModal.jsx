@@ -11,7 +11,9 @@ import {
   BookOpen, 
   Edit3, 
   CheckCircle2,
-  Users
+  Users,
+  LogOut,
+  Sparkles
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { CITIES } from '../../data/mockData';
@@ -24,6 +26,7 @@ export const ProfileModal = () => {
     setCurrentUser, 
     protests, 
     posts, 
+    logoutUser,
     showToast 
   } = useApp();
 
@@ -47,6 +50,11 @@ export const ProfileModal = () => {
       city: userCity
     }));
     showToast('Profile updated successfully', 'success');
+  };
+
+  const handleLogout = () => {
+    logoutUser();
+    setIsProfileOpen(false);
   };
 
   return (
@@ -84,9 +92,13 @@ export const ProfileModal = () => {
             </div>
 
             <div className="flex items-center gap-2 text-xs">
-              <span className="bg-slate-800 border border-slate-700 text-slate-300 font-semibold px-3 py-1.5 rounded-xl">
-                {currentUser.role}
-              </span>
+              <button
+                onClick={handleLogout}
+                className="bg-slate-800 hover:bg-rose-950 text-slate-300 hover:text-rose-400 border border-slate-700 hover:border-rose-700 font-semibold px-3 py-1.5 rounded-xl transition-colors flex items-center gap-1.5"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span>Log Out</span>
+              </button>
             </div>
           </div>
 

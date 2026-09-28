@@ -37,6 +37,7 @@ import { CommunityList } from './components/communities/CommunityList';
 import { ChannelDetailModal } from './components/communities/ChannelDetailModal';
 import { SOSToolkitModal } from './components/sos/SOSToolkitModal';
 import { ProfileModal } from './components/profile/ProfileModal';
+import { AuthModal } from './components/auth/AuthModal';
 import { Toast } from './components/common/Toast';
 import { CATEGORIES } from './data/mockData';
 
@@ -176,7 +177,7 @@ const MainContent = () => {
           {/* VIEW LAYOUT RENDERING */}
           {activeViewMode === 'split' && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-              {/* Left Column: Interactive Map (5 cols) */}
+              {/* Left Column: Interactive Map (6 cols) */}
               <div className="lg:col-span-6 xl:col-span-6 lg:sticky lg:top-24 h-[420px] lg:h-[calc(100vh-140px)]">
                 <ProtestMapView />
               </div>
@@ -257,6 +258,7 @@ export default function App() {
         <ChannelDetailModal />
         <SOSToolkitModal />
         <ProfileModal />
+        <AuthModal />
 
         {/* Global Floating Toast */}
         <Toast />

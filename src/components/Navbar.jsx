@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Flame, 
   MapPin, 
@@ -7,11 +7,12 @@ import {
   PlusCircle, 
   Shield, 
   ShieldCheck, 
-  SlidersHorizontal,
-  Compass,
-  MessageSquare,
+  Compass, 
+  Radio, 
   Users,
-  Radio
+  LogIn,
+  Download,
+  Smartphone
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { CITIES } from '../data/mockData';
@@ -25,11 +26,38 @@ export const Navbar = () => {
     activeTab, 
     setActiveTab, 
     currentUser, 
+    isGuest,
+    setIsAuthModalOpen,
     toggleAnonymousMode,
     setIsCreateProtestOpen,
     setIsSOSOpen,
-    setIsProfileOpen
+    setIsProfileOpen,
+    showToast
   } = useApp();
+
+  const [installPrompt, setInstallPrompt] = useState(null);
+
+  useEffect(() => {
+    const handleBeforeInstall = (e) => {
+      e.preventDefault();
+      setInstallPrompt(e);
+    };
+    window.addEventListener('beforeinstallprompt', handleBeforeInstall);
+    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
+  }, []);
+
+  const handleInstallApp = async () => {
+    if (installPrompt) {
+      installPrompt.prompt();
+      const choice = await installPrompt.userChoice;
+      if (choice.outcome === 'accepted') {
+        showToast('JanAwaz installed to your device home screen!', 'success');
+      }
+      setInstallPrompt(null);
+    } else {
+      showToast('To install JanAwaz: Tap Share on Safari/Chrome and click "Add to Home Screen"', 'info');
+    }
+  };
 
   return (
     <header className="sticky top-0 z-40 bg-slate-950/90 backdrop-blur-xl border-b border-slate-800/80">
@@ -142,11 +170,20 @@ export const Navbar = () => {
           {/* Right Action Buttons */}
           <div className="flex items-center gap-2">
             
-            {/* SOS / Legal Emergency Button */}
+            {/* Install App Button */}
+            <button
+              onClick={handleInstallApp}
+              className="hidden sm:flex items-center gap-1 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 text-xs font-semibold px-2.5 py-2 rounded-xl transition-all"
+              title="Install JanAwaz App on Phone or PC"
+            >
+              <Smartphone className="w-3.5 h-3.5 text-brand-400" />
+              <span>App</span>
+            </button>
+
+            {/* SOS Button */}
             <button
               onClick={() => setIsSOSOpen(true)}
-              className="relative group flex items-center gap-1.5 bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-500 hover:to-rose-600 text-white font-bold text-xs px-3 py-2 rounded-xl shadow-lg shadow-red-600/30 active:scale-95 transition-all border border-red-400/30"
-              title="Emergency Legal Helpline & Know Your Rights"
+              className="relative flex items-center gap-1.5 bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-500 hover:to-rose-600 text-white font-bold text-xs px-3 py-2 rounded-xl shadow-lg shadow-red-600/30 active:scale-95 transition-all border border-red-400/30"
             >
               <ShieldAlert className="w-4 h-4 animate-bounce" />
               <span className="hidden sm:inline">SOS & Rights</span>
@@ -156,7 +193,7 @@ export const Navbar = () => {
               </span>
             </button>
 
-            {/* Create Protest Button */}
+            {/* Create Movement Button */}
             <button
               onClick={() => setIsCreateProtestOpen(true)}
               className="hidden sm:flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-slate-100 border border-slate-700 text-xs font-semibold px-3 py-2 rounded-xl transition-all"
@@ -165,39 +202,51 @@ export const Navbar = () => {
               <span>Start Movement</span>
             </button>
 
-            {/* Anonymous Mode Shield Toggle */}
-            <button
-              onClick={toggleAnonymousMode}
-              className={`p-2 rounded-xl border text-xs font-medium transition-all ${
-                currentUser.isAnonymousMode 
-                  ? 'bg-purple-950/80 border-purple-500/60 text-purple-300 shadow-lg shadow-purple-900/30' 
-                  : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200'
-              }`}
-              title={currentUser.isAnonymousMode ? "Anonymous Shield Active (Click to disable)" : "Enable Anonymous Shield Mode"}
-            >
-              {currentUser.isAnonymousMode ? (
-                <Shield className="w-4 h-4 text-purple-400 animate-pulse" />
-              ) : (
-                <ShieldCheck className="w-4 h-4 text-slate-400" />
-              )}
-            </button>
+            {/* Anonymous Mode Shield */}
+            {!isGuest && (
+              <button
+                onClick={toggleAnonymousMode}
+                className={`p-2 rounded-xl border text-xs font-medium transition-all ${
+                  currentUser.isAnonymousMode 
+                    ? 'bg-purple-950/80 border-purple-500/60 text-purple-300 shadow-lg shadow-purple-900/30' 
+                    : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200'
+                }`}
+                title={currentUser.isAnonymousMode ? "Anonymous Shield Active" : "Enable Anonymous Shield Mode"}
+              >
+                {currentUser.isAnonymousMode ? (
+                  <Shield className="w-4 h-4 text-purple-400 animate-pulse" />
+                ) : (
+                  <ShieldCheck className="w-4 h-4 text-slate-400" />
+                )}
+              </button>
+            )}
 
-            {/* User Profile Avatar */}
-            <button
-              onClick={() => setIsProfileOpen(true)}
-              className="flex items-center gap-2 p-1 rounded-full border border-slate-700 hover:border-brand-500 transition-colors bg-slate-900"
-            >
-              <img 
-                src={currentUser.isAnonymousMode ? 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120&auto=format&fit=crop&q=80' : currentUser.avatar} 
-                alt={currentUser.name} 
-                className="w-7 h-7 rounded-full object-cover"
-              />
-            </button>
+            {/* Profile Avatar / Sign In */}
+            {isGuest ? (
+              <button
+                onClick={() => setIsAuthModalOpen(true)}
+                className="flex items-center gap-1.5 bg-brand-600 hover:bg-brand-500 text-white font-bold text-xs px-3 py-2 rounded-xl shadow-md shadow-brand-600/30 transition-all"
+              >
+                <LogIn className="w-3.5 h-3.5" />
+                <span>Sign In</span>
+              </button>
+            ) : (
+              <button
+                onClick={() => setIsProfileOpen(true)}
+                className="flex items-center gap-2 p-1 rounded-full border border-slate-700 hover:border-brand-500 transition-colors bg-slate-900"
+              >
+                <img 
+                  src={currentUser.isAnonymousMode ? 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120&auto=format&fit=crop&q=80' : currentUser.avatar} 
+                  alt={currentUser.name} 
+                  className="w-7 h-7 rounded-full object-cover"
+                />
+              </button>
+            )}
           </div>
 
         </div>
 
-        {/* Mobile City Selector Bar */}
+        {/* Mobile City & Search bar */}
         <div className="flex md:hidden items-center gap-2 pb-3 pt-1">
           <div className="flex items-center gap-1 bg-slate-900 border border-slate-800 rounded-lg px-2 py-1.5 text-xs text-slate-300">
             <MapPin className="w-3.5 h-3.5 text-brand-400" />

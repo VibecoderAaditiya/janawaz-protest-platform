@@ -9,10 +9,10 @@ import {
   ShieldCheck, 
   Radio, 
   Send,
-  Volume2,
-  VolumeX,
+  Flame,
   Sparkles
 } from 'lucide-react';
+import confetti from 'canvas-confetti';
 import { useApp } from '../../context/AppContext';
 
 export const StoryViewerModal = () => {
@@ -30,6 +30,7 @@ export const StoryViewerModal = () => {
   const [progress, setProgress] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [commentText, setCommentText] = useState('');
+  const [floatingEmojis, setFloatingEmojis] = useState([]);
 
   const currentStory = filteredStories[activeStoryIndex];
 
@@ -83,10 +84,25 @@ export const StoryViewerModal = () => {
     }
   };
 
+  const spawnEmoji = (emoji) => {
+    const newEmoji = {
+      id: Date.now() + Math.random(),
+      emoji,
+      left: Math.floor(Math.random() * 60) + 20 // 20% to 80%
+    };
+    setFloatingEmojis(prev => [...prev, newEmoji]);
+    cheerStory(currentStory.id);
+
+    setTimeout(() => {
+      setFloatingEmojis(prev => prev.filter(e => e.id !== newEmoji.id));
+    }, 1400);
+  };
+
   const handleSendReply = (e) => {
     e.preventDefault();
     if (!commentText.trim()) return;
-    showToast(`Ground solidarity reply sent to ${currentStory.userName}!`, 'success');
+    spawnEmoji('❤️');
+    showToast(`Solidarity reply sent to ${currentStory.userName}!`, 'success');
     setCommentText('');
   };
 
@@ -101,13 +117,13 @@ export const StoryViewerModal = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl flex items-center justify-center p-0 sm:p-4">
+    <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-2xl flex items-center justify-center p-0 sm:p-4">
       
-      {/* Navigation Buttons for Desktop */}
+      {/* Desktop Navigation Arrows */}
       {activeStoryIndex > 0 && (
         <button
           onClick={handlePrev}
-          className="hidden md:flex absolute left-8 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 text-white items-center justify-center backdrop-blur-md transition-all z-10"
+          className="hidden md:flex absolute left-8 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 text-white items-center justify-center backdrop-blur-md transition-all z-20"
         >
           <ChevronLeft className="w-6 h-6" />
         </button>
@@ -116,15 +132,15 @@ export const StoryViewerModal = () => {
       {activeStoryIndex < filteredStories.length - 1 && (
         <button
           onClick={handleNext}
-          className="hidden md:flex absolute right-8 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 text-white items-center justify-center backdrop-blur-md transition-all z-10"
+          className="hidden md:flex absolute right-8 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 text-white items-center justify-center backdrop-blur-md transition-all z-20"
         >
           <ChevronRight className="w-6 h-6" />
         </button>
       )}
 
-      {/* Main Story Card */}
+      {/* Main Story Container */}
       <div 
-        className="relative w-full max-w-md h-full sm:h-[90vh] max-h-[860px] bg-slate-900 sm:rounded-3xl overflow-hidden shadow-2xl flex flex-col justify-between"
+        className="relative w-full max-w-md h-full sm:h-[90vh] max-h-[860px] bg-slate-950 sm:rounded-3xl overflow-hidden shadow-2xl flex flex-col justify-between select-none"
         onMouseDown={() => setIsPaused(true)}
         onMouseUp={() => setIsPaused(false)}
         onTouchStart={() => setIsPaused(true)}
@@ -137,11 +153,26 @@ export const StoryViewerModal = () => {
             alt={currentStory.caption}
             className="w-full h-full object-cover"
           />
-          {/* Top & Bottom Gradient Overlays */}
           <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-transparent to-black/90" />
         </div>
 
-        {/* Top Story Controls & Progress Indicators */}
+        {/* Floating Story Reaction Emojis Animation */}
+        <div className="absolute inset-0 pointer-events-none z-30 overflow-hidden">
+          {floatingEmojis.map(item => (
+            <div
+              key={item.id}
+              className="absolute text-4xl animate-in fade-in slide-in-from-bottom-20 duration-1000 transform -translate-x-1/2"
+              style={{
+                left: `${item.left}%`,
+                bottom: '15%'
+              }}
+            >
+              {item.emoji}
+            </div>
+          ))}
+        </div>
+
+        {/* Top Story Controls */}
         <div className="relative z-10 p-4 pt-3">
           {/* Multi-story Segment Progress Bars */}
           <div className="flex items-center gap-1.5 mb-3">
@@ -165,11 +196,13 @@ export const StoryViewerModal = () => {
           {/* User Profile Info & Close Button */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <img
-                src={currentStory.userAvatar}
-                alt={currentStory.userName}
-                className="w-9 h-9 rounded-full object-cover border-2 border-brand-500"
-              />
+              <div className="p-0.5 rounded-full bg-gradient-to-tr from-rose-500 to-amber-500">
+                <img
+                  src={currentStory.userAvatar}
+                  alt={currentStory.userName}
+                  className="w-9 h-9 rounded-full object-cover border-2 border-black"
+                />
+              </div>
               <div>
                 <div className="flex items-center gap-1.5">
                   <span className="text-sm font-bold text-white leading-tight">
@@ -179,7 +212,7 @@ export const StoryViewerModal = () => {
                     <ShieldCheck className="w-3.5 h-3.5 text-blue-400 fill-blue-400/20" />
                   )}
                   {currentStory.isLive && (
-                    <span className="bg-rose-600 text-[9px] font-black uppercase text-white px-1.5 py-0.5 rounded flex items-center gap-1">
+                    <span className="bg-rose-600 text-[9px] font-black uppercase text-white px-1.5 py-0.2 rounded-full flex items-center gap-0.5">
                       <Radio className="w-2.5 h-2.5" /> LIVE
                     </span>
                   )}
@@ -193,27 +226,25 @@ export const StoryViewerModal = () => {
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setActiveStoryIndex(null)}
-                className="w-8 h-8 rounded-full bg-black/40 hover:bg-black/70 text-white flex items-center justify-center backdrop-blur-md"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
+            <button
+              onClick={() => setActiveStoryIndex(null)}
+              className="w-8 h-8 rounded-full bg-black/50 hover:bg-black/80 text-white flex items-center justify-center backdrop-blur-md"
+            >
+              <X className="w-5 h-5" />
+            </button>
           </div>
         </div>
 
-        {/* Left & Right Tap Zones for Mobile Navigation */}
+        {/* Tap Left / Right Zones */}
         <div className="relative z-10 flex-1 flex">
           <div className="w-1/3 h-full cursor-pointer" onClick={handlePrev} />
           <div className="w-2/3 h-full cursor-pointer" onClick={handleNext} />
         </div>
 
-        {/* Bottom Story Content & Actions */}
+        {/* Bottom Actions & Instagram Quick Emoji Bar */}
         <div className="relative z-10 p-4 space-y-3">
           
-          {/* Linked Protest Banner */}
+          {/* Linked Movement Button */}
           {currentStory.protestId && (
             <button
               onClick={handleViewProtest}
@@ -228,28 +259,42 @@ export const StoryViewerModal = () => {
           )}
 
           {/* Caption */}
-          <div className="bg-black/50 backdrop-blur-md rounded-2xl p-3.5 border border-white/10 text-sm text-slate-100 leading-relaxed">
+          <div className="bg-black/60 backdrop-blur-md rounded-2xl p-3 border border-white/10 text-xs sm:text-sm text-slate-100 leading-relaxed">
             {currentStory.caption}
           </div>
 
-          {/* Action Row: Cheer / Solidarity Reply */}
-          <div className="flex items-center gap-2 pt-1">
-            <form onSubmit={handleSendReply} className="flex-1 flex items-center bg-white/15 backdrop-blur-md border border-white/20 rounded-full px-3 py-1.5 focus-within:border-brand-400">
+          {/* Quick Instagram Story Emoji Reactions Row */}
+          <div className="flex items-center justify-between px-2 bg-black/40 backdrop-blur-md py-1.5 rounded-full border border-white/10">
+            {['🔥', '✊', '❤️', '📢', '👏', '🚩'].map((emoji, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={() => spawnEmoji(emoji)}
+                className="text-lg hover:scale-130 transition-transform active:scale-90 p-1"
+              >
+                {emoji}
+              </button>
+            ))}
+          </div>
+
+          {/* Action Form & Direct Reply */}
+          <div className="flex items-center gap-2 pt-0.5">
+            <form onSubmit={handleSendReply} className="flex-1 flex items-center bg-white/15 backdrop-blur-md border border-white/20 rounded-full px-3.5 py-2 focus-within:border-brand-400">
               <input
                 type="text"
-                placeholder="Send solidarity reply..."
+                placeholder="Send reply to story..."
                 value={commentText}
                 onChange={(e) => setCommentText(e.target.value)}
                 className="w-full bg-transparent text-xs text-white placeholder:text-slate-300 focus:outline-none"
               />
-              <button type="submit" className="text-white hover:text-brand-400 p-1">
+              <button type="submit" className="text-white hover:text-brand-400 pl-1">
                 <Send className="w-3.5 h-3.5" />
               </button>
             </form>
 
             <button
-              onClick={() => cheerStory(currentStory.id)}
-              className="flex items-center gap-1.5 bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs px-3.5 py-2 rounded-full shadow-lg shadow-rose-600/30 active:scale-95 transition-all"
+              onClick={() => spawnEmoji('❤️')}
+              className="flex items-center gap-1.5 bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs px-3.5 py-2 rounded-full shadow-lg shadow-rose-600/40 active:scale-90 transition-all"
             >
               <Heart className="w-4 h-4 fill-white" />
               <span>{currentStory.cheersCount}</span>

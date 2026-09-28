@@ -13,20 +13,29 @@ import {
 const AppContext = createContext();
 
 export const AppProvider = ({ children }) => {
-  // Current user persona (can switch to anonymous or organizer)
-  const [currentUser, setCurrentUser] = useState({
-    id: 'usr-self',
-    name: 'Aadi Sharma',
-    handle: '@aadi_citizen',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80',
-    role: 'Activist Citizen',
-    city: 'delhi',
-    verified: true,
-    isAnonymousMode: false,
-    joinedCommunities: ['comm-1', 'comm-2'],
-    attendedProtests: ['pr-1'],
-    savedFlashcards: ['right-1', 'right-3', 'right-5']
+  // Authentication & User State
+  const [isGuest, setIsGuest] = useState(() => {
+    return localStorage.getItem('janawaz_is_guest') === 'true';
   });
+
+  const [currentUser, setCurrentUser] = useState(() => {
+    const saved = localStorage.getItem('janawaz_user');
+    return saved ? JSON.parse(saved) : {
+      id: 'usr-self',
+      name: 'Aadi Sharma',
+      handle: '@aadi_citizen',
+      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80',
+      role: 'Activist Citizen',
+      city: 'delhi',
+      verified: true,
+      isAnonymousMode: false,
+      joinedCommunities: ['comm-1', 'comm-2'],
+      attendedProtests: ['pr-1'],
+      savedFlashcards: ['right-1', 'right-3', 'right-5']
+    };
+  });
+
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   // Filters & Navigation
   const [selectedCity, setSelectedCity] = useState('all');
@@ -70,6 +79,14 @@ export const AppProvider = ({ children }) => {
 
   // Sync to local storage
   useEffect(() => {
+    localStorage.setItem('janawaz_user', JSON.stringify(currentUser));
+  }, [currentUser]);
+
+  useEffect(() => {
+    localStorage.setItem('janawaz_is_guest', String(isGuest));
+  }, [isGuest]);
+
+  useEffect(() => {
     localStorage.setItem('janawaz_protests', JSON.stringify(protests));
   }, [protests]);
 
@@ -92,8 +109,60 @@ export const AppProvider = ({ children }) => {
     }, 4000);
   };
 
+  // Auth Handlers
+  const loginUser = (userData) => {
+    setIsGuest(false);
+    setCurrentUser(prev => ({
+      ...prev,
+      ...userData,
+      id: userData.id || `usr-${Date.now()}`,
+      name: userData.name || userData.email.split('@')[0],
+      handle: userData.handle || `@${userData.email.split('@')[0]}`,
+      avatar: userData.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80',
+      role: userData.role || 'Activist Citizen',
+      verified: userData.verified ?? true
+    }));
+    showToast(`Welcome back, ${userData.name || 'Activist'}!`, 'success');
+  };
+
+  const signupUser = (formData) => {
+    setIsGuest(false);
+    const newUser = {
+      id: `usr-${Date.now()}`,
+      name: formData.name,
+      handle: formData.handle,
+      avatar: formData.avatar,
+      role: 'Activist Citizen',
+      city: formData.city,
+      verified: false,
+      isAnonymousMode: false,
+      joinedCommunities: [],
+      attendedProtests: [],
+      savedFlashcards: []
+    };
+    setCurrentUser(newUser);
+    showToast(`Account created! Welcome to JanAwaz, ${formData.name}`, 'success');
+    confetti({ particleCount: 60, spread: 60, origin: { y: 0.7 } });
+  };
+
+  const continueAsGuest = () => {
+    setIsGuest(true);
+    showToast('Browsing in Guest Mode (Read-only access)', 'info');
+  };
+
+  const logoutUser = () => {
+    setIsGuest(true);
+    showToast('Logged out. You are now in Guest Mode.', 'info');
+  };
+
   // Actions
   const toggleRSVP = (protestId) => {
+    if (isGuest) {
+      setIsAuthModalOpen(true);
+      showToast('Please sign in to join movements and register RSVP', 'info');
+      return;
+    }
+
     setProtests(prev => prev.map(pr => {
       if (pr.id === protestId) {
         const willAttend = !pr.attendingUser;
@@ -118,6 +187,12 @@ export const AppProvider = ({ children }) => {
   };
 
   const addProtest = (newProtestData) => {
+    if (isGuest) {
+      setIsAuthModalOpen(true);
+      showToast('Please sign in to organize and publish movements', 'info');
+      return;
+    }
+
     const cityObj = CITIES.find(c => c.id === newProtestData.cityId) || CITIES[1];
     const categoryObj = CATEGORIES.find(c => c.id === newProtestData.category) || CATEGORIES[1];
     
@@ -163,6 +238,12 @@ export const AppProvider = ({ children }) => {
   };
 
   const addStory = (storyData) => {
+    if (isGuest) {
+      setIsAuthModalOpen(true);
+      showToast('Please sign in to upload ground stories', 'info');
+      return;
+    }
+
     const cityObj = CITIES.find(c => c.id === storyData.cityId) || CITIES[1];
     const newStory = {
       id: `story-${Date.now()}`,
@@ -191,10 +272,15 @@ export const AppProvider = ({ children }) => {
       }
       return st;
     }));
-    confetti({ particleCount: 25, spread: 40, origin: { y: 0.6 } });
   };
 
   const addPost = (postData) => {
+    if (isGuest) {
+      setIsAuthModalOpen(true);
+      showToast('Please sign in to broadcast dispatches', 'info');
+      return;
+    }
+
     const cityObj = CITIES.find(c => c.id === postData.cityId) || CITIES[1];
     const newPost = {
       id: `post-${Date.now()}`,
@@ -224,12 +310,15 @@ export const AppProvider = ({ children }) => {
   };
 
   const toggleAmplifyPost = (postId) => {
+    if (isGuest) {
+      setIsAuthModalOpen(true);
+      showToast('Please sign in to amplify dispatches', 'info');
+      return;
+    }
+
     setPosts(prev => prev.map(p => {
       if (p.id === postId) {
         const isAmplified = !p.amplifiedByUser;
-        if (isAmplified) {
-          confetti({ particleCount: 30, spread: 50, origin: { y: 0.8 } });
-        }
         return {
           ...p,
           amplifiedByUser: isAmplified,
@@ -241,6 +330,11 @@ export const AppProvider = ({ children }) => {
   };
 
   const addCommentToPost = (postId, commentText) => {
+    if (isGuest) {
+      setIsAuthModalOpen(true);
+      showToast('Please sign in to comment', 'info');
+      return;
+    }
     if (!commentText.trim()) return;
     const newComment = {
       id: `c-${Date.now()}`,
@@ -265,6 +359,12 @@ export const AppProvider = ({ children }) => {
   };
 
   const toggleJoinCommunity = (communityId) => {
+    if (isGuest) {
+      setIsAuthModalOpen(true);
+      showToast('Please sign in to join movement channels', 'info');
+      return;
+    }
+
     setCommunities(prev => prev.map(comm => {
       if (comm.id === communityId) {
         const isJoined = !comm.isJoined;
@@ -284,6 +384,11 @@ export const AppProvider = ({ children }) => {
   };
 
   const sendChatMessage = (communityId, messageText) => {
+    if (isGuest) {
+      setIsAuthModalOpen(true);
+      showToast('Please sign in to participate in channel discussions', 'info');
+      return;
+    }
     if (!messageText.trim()) return;
     const newMsg = {
       id: `m-${Date.now()}`,
@@ -343,6 +448,13 @@ export const AppProvider = ({ children }) => {
     <AppContext.Provider value={{
       currentUser,
       setCurrentUser,
+      isGuest,
+      isAuthModalOpen,
+      setIsAuthModalOpen,
+      loginUser,
+      signupUser,
+      continueAsGuest,
+      logoutUser,
       selectedCity,
       setSelectedCity,
       selectedCategory,
