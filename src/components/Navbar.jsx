@@ -12,7 +12,9 @@ import {
   Users,
   LogIn,
   Download,
-  Smartphone
+  Smartphone,
+  Clapperboard,
+  Palette
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { CITIES } from '../data/mockData';
@@ -32,6 +34,8 @@ export const Navbar = () => {
     setIsCreateProtestOpen,
     setIsSOSOpen,
     setIsProfileOpen,
+    setIsPlacardStudioOpen,
+    setIsGroundReelsOpen,
     showToast
   } = useApp();
 
@@ -201,6 +205,16 @@ export const Navbar = () => {
             >
               <Palette className="w-3.5 h-3.5 text-amber-400" />
               <span>Placard Studio</span>
+            </button>
+
+            {/* Ground Reels Button */}
+            <button
+              onClick={() => setIsGroundReelsOpen(true)}
+              className="hidden lg:flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-rose-300 text-xs font-bold px-3 py-2 rounded-xl transition-all shadow-sm"
+              title="Ground Reels — Live from the streets"
+            >
+              <Clapperboard className="w-3.5 h-3.5 text-rose-400" />
+              <span>Ground Reels</span>
             </button>
 
             {/* Create Movement Button */}

@@ -39,6 +39,7 @@ import { SOSToolkitModal } from './components/sos/SOSToolkitModal';
 import { ProfileModal } from './components/profile/ProfileModal';
 import { AuthModal } from './components/auth/AuthModal';
 import { PlacardStudioModal } from './components/studio/PlacardStudioModal';
+import { GroundReelsModal } from './components/reels/GroundReelsModal';
 import { OfflineBanner } from './components/common/OfflineBanner';
 import { Toast } from './components/common/Toast';
 import { CATEGORIES } from './data/mockData';
@@ -238,44 +239,60 @@ const MainContent = () => {
   );
 };
 
+// AppInner lives inside AppProvider so it can call useApp()
+const AppInner = () => {
+  const { 
+    isPlacardStudioOpen, setIsPlacardStudioOpen,
+    isGroundReelsOpen, setIsGroundReelsOpen
+  } = useApp();
+
+  return (
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between selection:bg-brand-500 selection:text-white">
+      
+      <div>
+        {/* Header */}
+        <Navbar />
+        
+        {/* 0-Internet Offline Shield Indicator */}
+        <OfflineBanner />
+
+        {/* Main App Content */}
+        <MainContent />
+      </div>
+
+      {/* Global Modals — all context-aware via AppInner */}
+      <StoryViewerModal />
+      <CreateStoryModal />
+      <ProtestDetailsModal />
+      <CreateProtestModal />
+      <CreatePostModal />
+      <ChannelDetailModal />
+      <SOSToolkitModal />
+      <ProfileModal />
+      <AuthModal />
+      <PlacardStudioModal 
+        isOpen={isPlacardStudioOpen} 
+        onClose={() => setIsPlacardStudioOpen(false)} 
+      />
+      <GroundReelsModal
+        isOpen={isGroundReelsOpen}
+        onClose={() => setIsGroundReelsOpen(false)}
+      />
+
+      {/* Global Floating Toast */}
+      <Toast />
+
+      {/* Mobile Navigation Bar */}
+      <BottomNav />
+
+    </div>
+  );
+};
+
 export default function App() {
   return (
     <AppProvider>
-      <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between selection:bg-brand-500 selection:text-white">
-        
-        <div>
-          {/* Header */}
-          <Navbar />
-          
-          {/* 0-Internet Offline Shield Indicator */}
-          <OfflineBanner />
-
-          {/* Main App Content */}
-          <MainContent />
-        </div>
-
-        {/* Global Modals */}
-        <StoryViewerModal />
-        <CreateStoryModal />
-        <ProtestDetailsModal />
-        <CreateProtestModal />
-        <CreatePostModal />
-        <ChannelDetailModal />
-        <SOSToolkitModal />
-        <ProfileModal />
-        <AuthModal />
-        <PlacardStudioModal 
-          isOpen={isPlacardStudioOpen} 
-          onClose={() => setIsPlacardStudioOpen(false)} 
-        />
-
-        {/* Global Floating Toast */}
-        <Toast />
-
-        {/* Mobile Navigation Bar */}
-        <BottomNav />
-
-      </div>
+      <AppInner />
     </AppProvider>
   );
 }

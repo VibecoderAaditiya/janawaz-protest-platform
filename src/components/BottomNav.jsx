@@ -1,5 +1,5 @@
 import React from 'react';
-import { Compass, Radio, Users, ShieldAlert, User, Plus } from 'lucide-react';
+import { Compass, Radio, Users, ShieldAlert, User, Plus, Clapperboard } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
 export const BottomNav = () => {
@@ -8,7 +8,8 @@ export const BottomNav = () => {
     setActiveTab, 
     setIsCreatePostOpen, 
     setIsSOSOpen,
-    setIsProfileOpen
+    setIsProfileOpen,
+    setIsGroundReelsOpen
   } = useApp();
 
   return (
@@ -26,6 +27,23 @@ export const BottomNav = () => {
           <span className="text-[10px] font-medium">Protests</span>
         </button>
 
+        {/* Ground Reels */}
+        <button
+          onClick={() => setIsGroundReelsOpen(true)}
+          className="flex flex-col items-center gap-1 text-rose-400 hover:text-rose-300"
+        >
+          <Clapperboard className="w-5 h-5" />
+          <span className="text-[10px] font-medium">Reels</span>
+        </button>
+
+        {/* Central Quick Create */}
+        <button
+          onClick={() => setIsCreatePostOpen(true)}
+          className="w-11 h-11 -mt-5 rounded-full bg-gradient-to-tr from-brand-600 to-amber-500 text-white flex items-center justify-center shadow-lg shadow-brand-500/40 active:scale-95 transition-transform"
+        >
+          <Plus className="w-6 h-6 stroke-[2.5]" />
+        </button>
+
         {/* Action Feed */}
         <button
           onClick={() => setActiveTab('feed')}
@@ -37,26 +55,7 @@ export const BottomNav = () => {
           <span className="text-[10px] font-medium">Feed</span>
         </button>
 
-        {/* Central Quick Create */}
-        <button
-          onClick={() => setIsCreatePostOpen(true)}
-          className="w-11 h-11 -mt-5 rounded-full bg-gradient-to-tr from-brand-600 to-amber-500 text-white flex items-center justify-center shadow-lg shadow-brand-500/40 active:scale-95 transition-transform"
-        >
-          <Plus className="w-6 h-6 stroke-[2.5]" />
-        </button>
-
-        {/* Channels */}
-        <button
-          onClick={() => setActiveTab('channels')}
-          className={`flex flex-col items-center gap-1 ${
-            activeTab === 'channels' ? 'text-brand-400' : 'text-slate-400 hover:text-slate-200'
-          }`}
-        >
-          <Users className="w-5 h-5" />
-          <span className="text-[10px] font-medium">Channels</span>
-        </button>
-
-        {/* SOS / Profile */}
+        {/* SOS */}
         <button
           onClick={() => setIsSOSOpen(true)}
           className="flex flex-col items-center gap-1 text-red-400 hover:text-red-300"
