@@ -38,6 +38,7 @@ import { ChannelDetailModal } from './components/communities/ChannelDetailModal'
 import { SOSToolkitModal } from './components/sos/SOSToolkitModal';
 import { ProfileModal } from './components/profile/ProfileModal';
 import { AuthModal } from './components/auth/AuthModal';
+import { PlacardStudioModal } from './components/studio/PlacardStudioModal';
 import { Toast } from './components/common/Toast';
 import { CATEGORIES } from './data/mockData';
 
@@ -259,6 +260,10 @@ export default function App() {
         <SOSToolkitModal />
         <ProfileModal />
         <AuthModal />
+        <PlacardStudioModal 
+          isOpen={isPlacardStudioOpen} 
+          onClose={() => setIsPlacardStudioOpen(false)} 
+        />
 
         {/* Global Floating Toast */}
         <Toast />

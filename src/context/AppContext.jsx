@@ -74,6 +74,7 @@ export const AppProvider = ({ children }) => {
   const [isCreateStoryOpen, setIsCreateStoryOpen] = useState(false);
   const [isSOSOpen, setIsSOSOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isPlacardStudioOpen, setIsPlacardStudioOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState(null);
 
   // Sync to local storage
@@ -482,6 +483,8 @@ export const AppProvider = ({ children }) => {
       setIsSOSOpen,
       isProfileOpen,
       setIsProfileOpen,
+      isPlacardStudioOpen,
+      setIsPlacardStudioOpen,
       toastMessage,
       showToast,
       toggleRSVP,

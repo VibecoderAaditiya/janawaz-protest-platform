@@ -193,6 +193,16 @@ export const Navbar = () => {
               </span>
             </button>
 
+            {/* Placard Studio Button */}
+            <button
+              onClick={() => setIsPlacardStudioOpen(true)}
+              className="hidden lg:flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-amber-300 text-xs font-bold px-3 py-2 rounded-xl transition-all shadow-sm"
+              title="Movement Placard & Poster Studio"
+            >
+              <Palette className="w-3.5 h-3.5 text-amber-400" />
+              <span>Placard Studio</span>
+            </button>
+
             {/* Create Movement Button */}
             <button
               onClick={() => setIsCreateProtestOpen(true)}
