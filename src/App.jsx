@@ -39,6 +39,7 @@ import { SOSToolkitModal } from './components/sos/SOSToolkitModal';
 import { ProfileModal } from './components/profile/ProfileModal';
 import { AuthModal } from './components/auth/AuthModal';
 import { PlacardStudioModal } from './components/studio/PlacardStudioModal';
+import { OfflineBanner } from './components/common/OfflineBanner';
 import { Toast } from './components/common/Toast';
 import { CATEGORIES } from './data/mockData';
 
@@ -245,6 +246,9 @@ export default function App() {
         <div>
           {/* Header */}
           <Navbar />
+          
+          {/* 0-Internet Offline Shield Indicator */}
+          <OfflineBanner />
 
           {/* Main App Content */}
           <MainContent />
