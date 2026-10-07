@@ -14,12 +14,15 @@ import {
   Download,
   Smartphone,
   Clapperboard,
-  Palette
+  Palette,
+  Globe
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import { useLanguage } from '../context/LanguageContext';
 import { CITIES } from '../data/mockData';
 
 export const Navbar = () => {
+  const { lang, switchLang, t, LANGUAGES } = useLanguage();
   const { 
     selectedCity, 
     setSelectedCity, 
@@ -143,7 +146,7 @@ export const Navbar = () => {
               }`}
             >
               <Compass className="w-4 h-4" />
-              Protests & Map
+              {t('nav_protests_map')}
             </button>
 
             <button
@@ -155,7 +158,7 @@ export const Navbar = () => {
               }`}
             >
               <Radio className="w-4 h-4" />
-              Action Feed
+              {t('nav_action_feed')}
             </button>
 
             <button
@@ -167,13 +170,30 @@ export const Navbar = () => {
               }`}
             >
               <Users className="w-4 h-4" />
-              Communities
+              {t('nav_communities')}
             </button>
           </nav>
 
           {/* Right Action Buttons */}
           <div className="flex items-center gap-2">
             
+            {/* Language Switcher Dropdown */}
+            <div className="relative flex items-center bg-slate-900 border border-slate-800 rounded-xl px-2 py-1.5 text-xs text-slate-300 hover:border-slate-700 transition-colors">
+              <Globe className="w-3.5 h-3.5 text-brand-400 mr-1 shrink-0" />
+              <select
+                value={lang}
+                onChange={(e) => switchLang(e.target.value)}
+                className="bg-transparent text-xs font-semibold focus:outline-none cursor-pointer text-slate-200"
+                title="Change Language / भाषा बदलें"
+              >
+                {LANGUAGES.map((l) => (
+                  <option key={l.code} value={l.code} className="bg-slate-900 text-slate-200">
+                    {l.flag} {l.nativeLabel} ({l.code.toUpperCase()})
+                  </option>
+                ))}
+              </select>
+            </div>
+
             {/* Install App Button */}
             <button
               onClick={handleInstallApp}

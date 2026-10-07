@@ -2,6 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.jsx'
 import './index.css'
+import { LanguageProvider } from './context/LanguageContext'
 
 // Register Service Worker for offline protest zone caching
 if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
@@ -14,6 +15,9 @@ if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <App />
+    <LanguageProvider>
+      <App />
+    </LanguageProvider>
   </React.StrictMode>,
 )
+
