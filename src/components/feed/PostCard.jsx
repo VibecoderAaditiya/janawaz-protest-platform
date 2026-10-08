@@ -12,6 +12,8 @@ import {
   MoreHorizontal
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
+import { useLanguage } from '../../context/LanguageContext';
+import { dynamicTranslations } from '../../i18n/translations';
 
 export const PostCard = ({ post }) => {
   const { 
@@ -23,6 +25,9 @@ export const PostCard = ({ post }) => {
     isGuest,
     setIsAuthModalOpen
   } = useApp();
+
+  const { lang, t } = useLanguage();
+  const postContentTranslated = dynamicTranslations[post.id]?.[lang] || post.content;
 
   const [showComments, setShowComments] = useState(false);
   const [commentInput, setCommentInput] = useState('');
@@ -147,7 +152,7 @@ export const PostCard = ({ post }) => {
 
       {/* Post Text Content */}
       <div className="px-4 py-2 text-xs sm:text-sm text-slate-200 leading-relaxed whitespace-pre-line">
-        {post.content}
+        {postContentTranslated}
       </div>
 
       {/* Media Image with Clean, Ultra-Smooth Vector Flame Pop */}
@@ -247,7 +252,7 @@ export const PostCard = ({ post }) => {
               />
             </div>
             <span className="font-extrabold text-sm">{post.amplifies.toLocaleString()}</span>
-            <span className="hidden sm:inline font-semibold text-xs text-slate-400">Ignited</span>
+            <span className="hidden sm:inline font-semibold text-xs text-slate-400">{t('post_ignited')}</span>
           </button>
 
           {/* Comment toggle */}

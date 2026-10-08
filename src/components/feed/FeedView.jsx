@@ -10,6 +10,7 @@ import {
   Users
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { StoriesBar } from '../stories/StoriesBar';
 import { PostCard } from './PostCard';
 
@@ -22,6 +23,7 @@ export const FeedView = () => {
     searchQuery 
   } = useApp();
 
+  const { t } = useLanguage();
   const [feedFilter, setFeedFilter] = useState('all'); // 'all' | 'trending' | 'verified'
 
   const displayedPosts = filteredPosts.filter(p => {
@@ -48,7 +50,7 @@ export const FeedView = () => {
             onClick={() => setIsCreatePostOpen(true)}
             className="flex-1 bg-slate-950/80 hover:bg-slate-950 border border-slate-800 hover:border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-400 text-left transition-colors flex items-center justify-between"
           >
-            <span>What's happening on your local protest ground?</span>
+            <span>{t('feed_composer_placeholder')}</span>
             <Plus className="w-4 h-4 text-brand-400 shrink-0" />
           </button>
         </div>
@@ -65,7 +67,7 @@ export const FeedView = () => {
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
-            All Dispatches
+            {t('filter_all_dispatches')}
           </button>
 
           <button
@@ -77,7 +79,7 @@ export const FeedView = () => {
             }`}
           >
             <TrendingUp className="w-3.5 h-3.5" />
-            <span>Trending ({filteredPosts.filter(p => p.amplifies > 300).length})</span>
+            <span>{t('filter_trending')} ({filteredPosts.filter(p => p.amplifies > 300).length})</span>
           </button>
 
           <button
@@ -89,7 +91,7 @@ export const FeedView = () => {
             }`}
           >
             <ShieldCheck className="w-3.5 h-3.5" />
-            <span>Verified Organizers</span>
+            <span>{t('filter_verified')}</span>
           </button>
         </div>
 
@@ -107,15 +109,15 @@ export const FeedView = () => {
         ) : (
           <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-8 text-center space-y-3">
             <Radio className="w-8 h-8 text-slate-600 mx-auto" />
-            <h3 className="font-bold text-sm text-slate-300">No dispatches match your filter</h3>
+            <h3 className="font-bold text-sm text-slate-300">{t('feed_no_dispatches')}</h3>
             <p className="text-xs text-slate-500 max-w-sm mx-auto">
-              Be the first citizen reporter in your city to broadcast a live situation update.
+              {t('feed_be_first_reporter')}
             </p>
             <button
               onClick={() => setIsCreatePostOpen(true)}
               className="bg-brand-600 hover:bg-brand-500 text-white font-bold text-xs px-4 py-2 rounded-xl transition-all shadow-md"
             >
-              Post First Dispatch
+              {t('btn_post_first_dispatch')}
             </button>
           </div>
         )}
